@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吉他順階和弦測驗</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F5F1; /* Primary Background: Very light, soft off-white/cream */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #EDEAE5; /* Container Background: Slightly darker, but still light, warm grey/beige */
+            border-radius: 1.5rem; /* More rounded corners */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem; /* Increased padding */
+            max-width: 600px; /* Max width for larger screens */
+            width: 100%; /* Full width on smaller screens */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem; /* Spacing between sections */
+        }
+        .header {
+            font-size: 2.25rem; /* Larger title */
+            font-weight: 700;
+            color: #4A3F35; /* Header/Strong Text: Dark brown/charcoal */
+            margin-bottom: 1rem;
+        }
+        .key-selection-section, .quiz-section, .chord-selection-screen {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .key-grid, .chord-checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); /* Responsive grid for selection */
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        .key-button {
+            background-color: #6BA3A3; /* Accent Color 1 (Buttons - primary action): Muted teal/blue-green */
+            color: white; /* Keep text white for contrast */
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem; /* Rounded buttons */
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .key-button:hover {
+            background-color: #5A8F8F; /* Hover for Accent 1: Slightly darker teal */
+            transform: translateY(-2px);
+        }
+        .key-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        /* Specific style for the Mixed Practice button */
+        .key-button.mixed-practice-button {
+            background-color: #B5A6C4; /* Accent Color 2 (Mixed Practice button): Soft lavender/mauve */
+            color: white; /* Changed to white as requested */
+        }
+        .key-button.mixed-practice-button:hover {
+            background-color: #9E8CAE; /* Slightly darker shade on hover */
+        }
+        .quiz-question {
+            font-size: 1.5rem; /* Larger question text */
+            font-weight: 600;
+            color: #4A3F35; /* Stronger text for questions */
+            margin-bottom: 1.5rem;
+        }
+        .answer-options {
+            display: grid;
+            grid-template-columns: 1fr; /* Single column for options on all screens */
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .answer-button { /* For single-select radio buttons and matching tiles */
+            background-color: #F5F2EE; /* Answer Buttons/Labels (default): Very light grey/beige */
+            color: #6B6055; /* General Text: Medium brown/grey */
+            padding: 0.85rem 1.25rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: 1px solid #DEDBD6; /* Subtle border, complementary to background */
+        }
+        .answer-button:hover {
+            background-color: #E8E5E0; /* Hover for Answer Buttons: Slightly darker light grey */
+            transform: translateY(-1px);
+        }
+        .answer-button.correct {
+            background-color: #5C8D89; /* Correct Feedback/Button: Muted forest green */
+            color: white;
+            border-color: #5C8D89;
+        }
+        .answer-button.incorrect {
+            background-color: #C97C5D; /* Incorrect Feedback/Button: Muted terracotta/rust */
+            color: white;
+            border-color: #C97C5D;
+        }
+
+        /* Styles for multi-select checkboxes (used in old multi-select quiz and new chord selection) */
+        .chord-selection-label, .answer-label {
+            display: block; /* Make label take full width */
+            background-color: #F5F2EE; /* Answer Buttons/Labels (default): Very light grey/beige */
+            color: #6B6055; /* General Text: Medium brown/grey */
+            padding: 0.85rem 1.25rem;
+            border-radius: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: 1px solid #DEDBD6;
+            text-align: left; /* Align text left within the label */
+            display: flex; /* Use flex to align checkbox and text */
+            align-items: center;
+            gap: 0.5rem; /* Space between checkbox and text */
+        }
+        .chord-selection-label:hover, .answer-label:hover {
+            background-color: #E8E5E0;
+            transform: translateY(-1px);
+        }
+        .chord-selection-label.selected { /* For chord selection, highlight selected */
+            background-color: #6BA3A3; /* Use Accent Color 1 for selected checkboxes */
+            color: white;
+            border-color: #6BA3A3;
+        }
+        .answer-label.correct {
+            background-color: #5C8D89;
+            color: white;
+            border-color: #5C8D89;
+        }
+        .answer-label.incorrect {
+            background-color: #C97C5D;
+            color: white;
+            border-color: #C97C5D;
+        }
+        /* For checkboxes themselves */
+        .chord-selection-checkbox, .answer-checkbox {
+            width: 20px; /* Make checkbox larger for touch */
+            height: 20px;
+            flex-shrink: 0; /* Prevent checkbox from shrinking */
+            accent-color: #6BA3A3; /* Custom color for checked state */
+        }
+        .answer-label.missing-correct { /* Style for correct options user missed */
+            border-color: #E09F3E; /* Use the orange accent for this */
+            background-color: #FCE9B0; /* Lighter version of the orange accent */
+        }
+
+
+        .feedback {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #4A3F35; /* Darker text for feedback */
+            min-height: 40px; /* Ensure space for feedback */
+        }
+        .feedback.correct-text {
+            color: #5C8D89; /* Green for correct */
+        }
+        .feedback.incorrect-text {
+            color: #C97C5D; /* Red for incorrect */
+        }
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #4A3F35; /* Darker text for score */
+            margin-top: 1rem;
+        }
+        .start-matching-button {
+            background-color: #E09F3E; /* Next/Start Matching Button: A warm, inviting orange/brown */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 1.5rem;
+        }
+        .start-matching-button:hover {
+            background-color: #C88A2B; /* Darker warm orange */
+            transform: translateY(-2px);
+        }
+        .start-matching-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .next-button {
+            background-color: #E09F3E; /* Next/Start Matching Button: A warm, inviting orange/brown */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 1.5rem;
+        }
+        .next-button:hover {
+            background-color: #C88A2B; /* Darker warm orange */
+            transform: translateY(-2px);
+        }
+        .next-button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .hidden {
+            display: none;
+        }
+
+        /* New styles for matching game tiles */
+        .matching-tile.selected {
+            border: 2px solid #6BA3A3; /* Blue border for selected, using Accent 1 */
+            transform: scale(1.02);
+            box-shadow: 0 0 10px rgba(107, 163, 163, 0.5); /* Shadow matching Accent 1 */
+        }
+        .matching-tile.correct {
+            background-color: #5C8D89; /* Green for correct match */
+            color: white;
+            border-color: #5C8D89;
+            pointer-events: none; /* Disable clicks on matched tiles */
+        }
+        .matching-tile.incorrect {
+            background-color: #C97C5D; /* Red for incorrect match */
+            color: white;
+            border-color: #C97C5D;
+        }
+        /* Layout for matching game columns */
+        .matching-game-columns {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align columns at the top */
+            gap: 1.5rem; /* Space between columns */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+        }
+        .matching-column {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem; /* Space between tiles in a column */
+            width: 48%; /* Each column takes half width, with gap */
+            min-width: 150px; /* Minimum width to prevent squishing */
+        }
+        
+        /* [EDIT] Responsive adjustments for smaller screens */
+        /* This media query ensures the matching game remains in two columns on smaller screens, */
+        /* improving usability by keeping the "left-to-right" matching format. */
+        @media (max-width: 520px) {
+            .matching-game-columns {
+                gap: 0.75rem; /* Reduce gap between columns to save space */
+            }
+            .matching-column {
+                /* Allow columns to shrink and fit side-by-side */
+                min-width: 0;
+                flex: 1;
+                /* Let flexbox manage the width instead of a fixed percentage */
+                width: auto;
+            }
+            /* Reduce padding and font on the tiles to fit more content */
+            .matching-tile.answer-button {
+                padding: 0.75rem 0.5rem; /* Adjust padding for smaller buttons */
+                font-size: 0.9rem; /* Make font smaller */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">吉他順階和弦測驗</div>
+
+        <!-- Key Selection Section -->
+        <div id="key-selection" class="key-selection-section">
+            <p class="text-lg text-gray-700" style="color: #6B6055;">請選擇一個調性開始測驗：</p>
+            <div class="key-grid">
+                <button class="key-button" data-key="C">C大調</button>
+                <button class="key-button" data-key="G">G大調</button>
+                <button class="key-button" data-key="D">D大調</button>
+                <button class="key-button" data-key="A">A大調</button>
+                <button class="key-button" data-key="E">E大調</button>
+                <button class="key-button" data-key="F">F大調</button>
+                <button class="key-button" data-key="B">B大調</button>
+                <button class="key-button mixed-practice-button" data-key="MixedMatchingGame">混合練習</button>
+            </div>
+        </div>
+
+        <!-- Chord Selection Screen for Mixed Matching Game -->
+        <div id="chord-selection-screen" class="chord-selection-screen hidden">
+            <p class="text-lg text-gray-700" style="color: #6B6055;">請選擇要練習的和弦根音：</p>
+            <div class="chord-checkbox-grid" id="chord-type-options">
+                <!-- Chord type checkboxes will be dynamically inserted here -->
+            </div>
+            <button class="start-matching-button" id="start-mixed-matching-button">開始連連看</button>
+        </div>
+
+        <!-- Quiz Section -->
+        <div id="quiz-game" class="quiz-section hidden">
+            <p class="text-xl font-semibold text-gray-800" id="current-key-display"></p>
+            <!-- New element to display selected root notes -->
+            <p class="text-lg mb-4 p-2 rounded-md" style="background-color: #FCE9B0; color: #6B6055;" id="selected-roots-display"></p>
+            <div class="quiz-question" id="question-text"></div>
+            <div class="answer-options" id="answer-buttons"></div>
+            <div class="feedback" id="feedback-text"></div>
+            <div class="score-display" id="score-display">分數: 0 / 0</div>
+            <button class="next-button hidden" id="next-button">下一題</button>
+            <button class="next-button hidden" id="restart-button">重新開始</button>
+        </div>
+    </div>
+
+    <script>
+        // Quiz data for various keys
+        // This 'quizData' object directly represents the CDEFGAB chord correspondence table.
+        const quizData = {
+            "C": {
+                "keyName": "C大調",
+                "chordMap": {
+                    "1": "C", "2m": "Dm", "3m": "Em", "4": "F", "5": "G", "6m": "Am", "7dim": "Bdim"
+                }
+            },
+            "G": {
+                "keyName": "G大調",
+                "chordMap": {
+                    "1": "G", "2m": "Am", "3m": "Bm", "4": "C", "5": "D", "6m": "Em", "7dim": "F#dim"
+                }
+            },
+            "D": {
+                "keyName": "D大調",
+                "chordMap": {
+                    "1": "D", "2m": "Em", "3m": "F#m", "4": "G", "5": "A", "6m": "Bm", "7dim": "C#dim"
+                }
+            },
+            "A": {
+                "keyName": "A大調",
+                "chordMap": {
+                    "1": "A", "2m": "Bm", "3m": "C#m", "4": "D", "5": "E", "6m": "F#m", "7dim": "G#dim"
+                }
+            },
+            "E": {
+                "keyName": "E大調",
+                "chordMap": {
+                    "1": "E", "2m": "F#m", "3m": "G#m", "4": "A", "5": "B", "6m": "C#m", "7dim": "D#dim"
+                }
+            },
+            "F": {
+                "keyName": "F大調",
+                "chordMap": {
+                    "1": "F", "2m": "Gm", "3m": "Am", "4": "Bb",
+                    "5": "C", "6m": "Dm", "7dim": "Edim"
+                }
+            },
+            "B": {
+                "keyName": "B大調",
+                "chordMap": {
+                    "1": "B", "2m": "C#m", "3m": "D#m", "4": "E", "5": "F#", "6m": "G#m", "7dim": "A#dim"
+                }
+            }
+        };
+
+        // New state variables for matching game
+        let selectedNumTile = null;
+        let selectedChordTile = null;
+        let matchedPairsCount = 0;
+        let matchingGamePairs = []; // Stores the actual pairs for the current game
+        let selectedRootLettersForMixedMatching = []; // Store selected root letters for mixed matching
+
+        let currentKey = '';
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let totalQuestionsAttempted = 0;
+        let quizActive = false; // To prevent multiple clicks during feedback
+
+        // Get DOM elements
+        const keySelectionSection = document.getElementById('key-selection');
+        const quizGameSection = document.getElementById('quiz-game');
+        const chordSelectionScreen = document.getElementById('chord-selection-screen'); // New screen
+        const chordTypeOptionsContainer = document.getElementById('chord-type-options'); // Container for checkboxes
+        const startMixedMatchingButton = document.getElementById('start-mixed-matching-button'); // New button
+
+        const currentKeyDisplay = document.getElementById('current-key-display');
+        const selectedRootsDisplay = document.getElementById('selected-roots-display'); // New element for displaying selected roots
+        const questionText = document.getElementById('question-text');
+        const answerButtonsContainer = document.getElementById('answer-buttons');
+        const feedbackText = document.getElementById('feedback-text');
+        const scoreDisplay = document.getElementById('score-display');
+        const nextButton = document.getElementById('next-button');
+        const restartButton = document.getElementById('restart-button');
+        const keyButtons = document.querySelectorAll('.key-button');
+
+        // Helper function to get the base letter of a chord (e.g., "C" from "C", "Dm", "C#m", "Bb")
+        function getChordBaseLetter(chordName) {
+            // This function aims to extract the primary letter of a chord name,
+            // ignoring accidentals (#, b) and chord qualities (m, dim, sus, etc.).
+            // For example: "C#m" -> "C", "Bb" -> "B", "F#dim" -> "F".
+            // It assumes the first character is always the base letter.
+            return chordName.charAt(0);
+        }
+
+        // Function to shuffle an array
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Function to generate quiz questions for a given key (single/multi-select modes only)
+        // This function is NOT used for matching games.
+        function generateQuizQuestions(key) {
+            const questions = [];
+            const allKeys = Object.keys(quizData);
+
+            const chordMap = quizData[key].chordMap;
+            const chords = Object.keys(chordMap);
+
+            // Type 1: "在[Key]大調中，'數字表示' 代表哪個和弦？"
+            chords.forEach(numNotation => {
+                const correctAnswer = chordMap[numNotation];
+                const options = new Set();
+                options.add(correctAnswer);
+
+                while (options.size < 4) {
+                    const randomChordKey = chords[Math.floor(Math.random() * chords.length)];
+                    const randomChordName = chordMap[randomChordKey];
+                    if (randomChordName !== correctAnswer) {
+                        options.add(randomChordName);
+                    }
+                }
+
+                questions.push({
+                    question: `在${quizData[key].keyName}中，「${numNotation}」代表哪個和弦？`,
+                    correctAnswer: correctAnswer,
+                    options: shuffleArray(Array.from(options)),
+                    type: 'single-select'
+                });
+            });
+
+            // Type 2: "以下哪組數字和弦表示法，完全符合[Key]大調的順階和弦？"
+            const correctSequence = Object.keys(chordMap).join(', ');
+            const incorrectSequences = [
+                chords.map(c => c.replace('m', '').replace('dim', '')).join(', '),
+                chords.map((c, i) => i === 2 ? c.replace('m', '') : c).join(', '),
+                chords.map((c, i) => i === 5 ? c.replace('m', '') : c).join(', ')
+            ].filter(seq => seq !== correctSequence);
+
+            questions.push({
+                question: `以下哪組數字和弦表示法，完全符合${quizData[key].keyName}的順階和弦？`,
+                correctAnswer: correctSequence,
+                options: shuffleArray([correctSequence, ...incorrectSequences.slice(0, 3)]),
+                type: 'single-select'
+            });
+
+            // Type 3: "如果一個歌曲的和弦進行是「1 - 4 - 5 - 1」，請問這對應到[Key]大調的哪些和弦？"
+            const progressionNum = "1 - 4 - 5 - 1";
+            const progressionChordsCorrect = `${chordMap["1"]} - ${chordMap["4"]} - ${chordMap["5"]} - ${chordMap["1"]}`;
+            const progressionOptions = new Set();
+            progressionOptions.add(progressionChordsCorrect);
+
+            const incorrectProgression1 = `${chordMap["1"]} - ${chordMap["2m"]} - ${chordMap["3m"]} - ${chordMap["1"]}`;
+            const incorrectProgression2 = `${chordMap["1"]} - ${chordMap["5"]} - ${chordMap["4"]} - ${chordMap["1"]}`;
+            const incorrectProgression3 = `${chordMap["1"]} - ${chordMap["6m"]} - ${chordMap["5"]} - ${chordMap["1"]}`;
+
+            progressionOptions.add(incorrectProgression1);
+            progressionOptions.add(incorrectProgression2);
+            progressionOptions.add(incorrectProgression3);
+
+            questions.push({
+                question: `如果一個歌曲的和弦進行是「${progressionNum}」，請問這對應到${quizData[key].keyName}的哪些和弦？`,
+                correctAnswer: progressionChordsCorrect,
+                options: shuffleArray(Array.from(progressionOptions).slice(0, 4)),
+                    type: 'single-select'
+                });
+
+                // Type 4: "在[Key]大調中，哪個數字表示的和弦是小三和弦？"
+                const minorChordsNum = Object.keys(chordMap).filter(num => num.includes('m'));
+                const correctMinorNum = minorChordsNum[Math.floor(Math.random() * minorChordsNum.length)];
+                const minorOptions = new Set();
+                minorOptions.add(correctMinorNum);
+
+                const majorOrDimChordsNum = Object.keys(chordMap).filter(num => !num.includes('m'));
+                while (minorOptions.size < 4) {
+                    const randomOption = majorOrDimChordsNum[Math.floor(Math.random() * majorOrDimChordsNum.length)];
+                    if (randomOption && !minorOptions.has(randomOption)) {
+                        minorOptions.add(randomOption);
+                    } else if (majorOrDimChordsNum.length === 0 && minorOptions.size < 4) {
+                        const randomExisting = chords[Math.floor(Math.random() * chords.length)];
+                        if (!minorOptions.has(randomExisting)) {
+                            minorOptions.add(randomExisting);
+                        }
+                    }
+                }
+
+                questions.push({
+                    question: `在${quizData[key].keyName}中，哪個數字表示的和弦是小三和弦？`,
+                    correctAnswer: correctMinorNum,
+                    options: shuffleArray(Array.from(minorOptions)),
+                    type: 'single-select'
+                });
+
+                // Type 5: Identify the chord sequence for a given key based on the numerical pattern.
+                const correctChordSequenceForCurrentKey = Object.values(chordMap).join(', ');
+
+                const optionsForType5 = new Set();
+                optionsForType5.add(correctChordSequenceForCurrentKey);
+
+                const otherKeys = allKeys.filter(k => k !== key);
+                shuffleArray(otherKeys);
+
+                for (let i = 0; i < Math.min(3, otherKeys.length); i++) {
+                    const randomOtherKey = otherKeys[i];
+                    const randomOtherChordMap = quizData[randomOtherKey].chordMap;
+                    const randomOtherChordSequence = Object.values(randomOtherChordMap).join(', ');
+                    if (randomOtherChordSequence !== correctChordSequenceForCurrentKey && optionsForType5.size < 4) {
+                        optionsForType5.add(randomOtherChordSequence);
+                    }
+                }
+                while (optionsForType5.size < 4) {
+                    const randomOtherKey = allKeys[Math.floor(Math.random() * allKeys.length)];
+                    const randomOtherChordMap = quizData[randomOtherKey].chordMap;
+                    const randomOtherChordSequence = Object.values(randomOtherChordMap).join(', ');
+                    optionsForType5.add(randomOtherChordSequence);
+                }
+
+                questions.push({
+                    question: `在${quizData[key].keyName}中，以下哪組和弦符合「1, 2m, 3m, 4, 5, 6m, 7dim」這個順階和弦模式？`,
+                    correctAnswer: correctChordSequenceForCurrentKey,
+                    options: shuffleArray(Array.from(optionsForType5)),
+                    type: 'single-select'
+                });
+
+                // Type 6: Identify the correct numerical pattern for a given key's diatonic chords.
+                const correctNumericalPattern = Object.keys(chordMap).join(', ');
+                const optionsForType6 = new Set();
+                optionsForType6.add(correctNumericalPattern);
+
+                const incorrectPattern1 = chords.map(c => c.replace('m', '').replace('dim', '')).join(', ');
+                const incorrectPattern2 = chords.map((c, i) => i === 1 ? c.replace('m', '') : c).join(', ');
+                const incorrectPattern3 = chords.map((c, i) => i === 4 ? `${c}m` : c).join(', ');
+
+                if (incorrectPattern1 !== correctNumericalPattern) optionsForType6.add(incorrectPattern1);
+                if (incorrectPattern2 !== correctNumericalPattern) optionsForType6.add(incorrectPattern2);
+                if (incorrectPattern3 !== correctNumericalPattern) optionsForType6.add(incorrectPattern3);
+
+                while (optionsForType6.size < 4) {
+                    const randomIncorrectIndex = Math.floor(Math.random() * chords.length);
+                    let randomIncorrectPattern = chords.map((c, i) => {
+                        if (i === randomIncorrectIndex) {
+                            if (c.includes('m')) return c.replace('m', '');
+                            if (c.includes('dim')) return c.replace('dim', '');
+                            return `${c}m`;
+                        }
+                        return c;
+                    }).join(', ');
+                    if (randomIncorrectPattern !== correctNumericalPattern) {
+                        optionsForType6.add(randomIncorrectPattern);
+                    }
+                }
+
+                questions.push({
+                    question: `在${quizData[key].keyName}中，其完整的順階和弦數字表示法是什麼？`,
+                    correctAnswer: correctNumericalPattern,
+                    options: shuffleArray(Array.from(optionsForType6)),
+                    type: 'single-select'
+                });
+
+                return shuffleArray(questions);
+            }
+
+            // Function to populate chord selection checkboxes for Mixed Matching Game
+            function populateChordSelection() {
+                chordTypeOptionsContainer.innerHTML = '';
+                // Changed to root notes CDEFGAB
+                const commonRootNotes = ["C", "D", "E", "F", "G", "A", "B"];
+
+                commonRootNotes.forEach(note => {
+                    const label = document.createElement('label');
+                    label.classList.add('chord-selection-label');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = note; // Value is the root note letter
+                    checkbox.classList.add('chord-selection-checkbox');
+                    checkbox.addEventListener('change', () => {
+                        if (checkbox.checked) {
+                            label.classList.add('selected');
+                        } else {
+                            label.classList.remove('selected');
+                        }
+                    });
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(note));
+                    chordTypeOptionsContainer.appendChild(label);
+                });
+            }
+
+            // Function to start any matching game mode
+            function startMatchingMode(modeKey, selectedRootLetters = null) {
+                currentKey = modeKey;
+                currentKeyDisplay.textContent = '混合練習連連看'; // Title for mixed matching
+                currentKeyDisplay.classList.remove('text-xl', 'font-semibold', 'text-gray-800');
+                // FIX: Removed 'color: #4A3F35;' from classList.add() and set it via style.color
+                currentKeyDisplay.classList.add('text-3xl', 'font-bold', 'bg-[#F7D67D]', 'p-2', 'rounded-lg', 'inline-block');
+                currentKeyDisplay.style.color = '#4A3F35'; // Set text color directly
+
+                chordSelectionScreen.classList.add('hidden'); // Hide chord selection
+                keySelectionSection.classList.add('hidden'); // Ensure key selection is hidden
+                quizGameSection.classList.remove('hidden');
+                restartButton.classList.add('hidden');
+                nextButton.classList.add('hidden'); // No "Next" button in matching game for auto-advance
+
+                score = 0;
+                totalQuestionsAttempted = 0; // This will count attempts or pairs matched
+                matchedPairsCount = 0;
+                selectedNumTile = null;
+                selectedChordTile = null;
+                quizActive = true; // Game is active
+
+                // Call generateMatchingPairs and check its return value or state
+                const success = generateMatchingPairs(selectedRootLetters);
+                if (success) { // Only proceed to display if pairs were successfully generated
+                    displayMatchingGame();
+                    updateScoreDisplay();
+                } else {
+                    // If generateMatchingPairs returned false, it means an error message was already displayed.
+                    // We just need to ensure the score display is updated to reflect the initial state or error.
+                    updateScoreDisplay();
+                }
+            }
+
+            // Function to generate pairs for the matching game based on selected root letters
+            function generateMatchingPairs(selectedRootLetters = null) {
+                const potentialPairs = []; // Stores { num: "1", chord: "C", key: "C" }
+
+                // Iterate only through the selected root letters (which correspond to major keys)
+                if (selectedRootLetters && selectedRootLetters.length > 0) {
+                    selectedRootLetters.forEach(rootLetter => {
+                        const keyData = quizData[rootLetter]; // Directly access the major key data (e.g., quizData["C"])
+                        if (keyData) { // Ensure the key data exists
+                            const chordMap = keyData.chordMap;
+                            for (const numNotation in chordMap) {
+                                const chordName = chordMap[numNotation];
+                                potentialPairs.push({
+                                    num: numNotation,
+                                    chord: chordName,
+                                    // ID now includes the rootLetter to ensure unique pairs even if num/chord are the same
+                                    id: `${numNotation}-${chordName}-${rootLetter}`
+                                });
+                            }
+                        }
+                    });
+                } else {
+                    // If no root letters are selected (should be prevented by UI, but as fallback)
+                    // Or if we want to default to all chords if nothing is selected.
+                    // For now, if no root letters are selected, we'll treat it as an error as per UI validation.
+                    questionText.textContent = '請至少選擇一個和弦根音！';
+                    answerButtonsContainer.innerHTML = '';
+                    restartButton.classList.remove('hidden');
+                    quizActive = false;
+                    return false;
+                }
+
+
+                // If there are no potential pairs based on the selection, or very few,
+                // we should handle this gracefully without forcing 7.
+                if (potentialPairs.length === 0) {
+                    questionText.textContent = '根據您的選擇，沒有可用的和弦。請選擇更多和弦根音。';
+                    answerButtonsContainer.innerHTML = '';
+                    restartButton.classList.remove('hidden');
+                    quizActive = false; // Disable game interaction
+                    return false; // Indicate failure
+                }
+
+                const shuffledPotentialPairs = shuffleArray(potentialPairs); // Shuffle once to ensure randomness
+
+                // Select up to 7 pairs from the shuffled list.
+                // No longer enforcing unique chord names on the right, as per user's request.
+                const pairsToUse = shuffledPotentialPairs.slice(0, Math.min(shuffledPotentialPairs.length, 7));
+
+                // If after filtering and slicing, we still don't have enough pairs to make a meaningful game (e.g., less than 2)
+                if (pairsToUse.length < 2) { // Minimum of 2 pairs needed for a matching game
+                    questionText.textContent = `和弦數量不足！目前選擇只能產生 ${pairsToUse.length} 種和弦配對。請選擇更多和弦根音，或選擇「所有和弦」以進行練習。`;
+                    answerButtonsContainer.innerHTML = '';
+                    restartButton.classList.remove('hidden');
+                    quizActive = false; // Disable game interaction
+                    return false; // Indicate failure
+                }
+
+
+                // Create the actual game tiles (numerical and chord name tiles)
+                const numTiles = [];
+                const chordTiles = [];
+
+                pairsToUse.forEach(pair => {
+                    numTiles.push({ value: pair.num, id: pair.id, type: 'num' });
+                    chordTiles.push({ value: pair.chord, id: pair.id, type: 'chord' });
+                });
+
+                matchingGamePairs = {
+                    numTiles: shuffleArray(numTiles), // Shuffle left column
+                    chordTiles: shuffleArray(chordTiles) // Shuffle right column
+                };
+                return true; // Indicate success
+            }
+
+            // Function to display the matching game UI
+            function displayMatchingGame() {
+                questionText.textContent = '點擊左邊的數字，再點擊右邊對應的和弦名稱：';
+                answerButtonsContainer.innerHTML = ''; // Clear previous content
+                feedbackText.textContent = '';
+
+                // Display the selected root notes
+                if (selectedRootLettersForMixedMatching && selectedRootLettersForMixedMatching.length > 0) {
+                    selectedRootsDisplay.textContent = `您選擇的根音：${selectedRootLettersForMixedMatching.join(', ')}`;
+                    selectedRootsDisplay.classList.remove('hidden');
+                } else {
+                    selectedRootsDisplay.classList.add('hidden');
+                }
+
+                const numColumn = document.createElement('div');
+                numColumn.classList.add('matching-column');
+                const chordColumn = document.createElement('div');
+                chordColumn.classList.add('matching-column');
+
+                answerButtonsContainer.classList.remove('grid'); // Remove grid for quiz options
+                answerButtonsContainer.classList.add('matching-game-columns'); // Add new flex layout class
+
+                // These checks are now less critical because generateMatchingPairs returns false on failure,
+                // preventing displayMatchingGame from being called in those cases.
+                // However, keeping them doesn't hurt and adds robustness.
+                if (matchingGamePairs && matchingGamePairs.numTiles) {
+                    matchingGamePairs.numTiles.forEach(tile => {
+                        const button = document.createElement('button');
+                        button.textContent = tile.value;
+                        button.dataset.id = tile.id;
+                        button.dataset.type = tile.type;
+                        button.classList.add('answer-button', 'matching-tile');
+                        button.addEventListener('click', handleMatchingTileClick);
+                        numColumn.appendChild(button);
+                    });
+                }
+
+
+                if (matchingGamePairs && matchingGamePairs.chordTiles) {
+                    matchingGamePairs.chordTiles.forEach(tile => {
+                        const button = document.createElement('button');
+                        button.textContent = tile.value;
+                        button.dataset.id = tile.id;
+                        button.dataset.type = tile.type;
+                        button.classList.add('answer-button', 'matching-tile');
+                        button.addEventListener('click', handleMatchingTileClick);
+                        chordColumn.appendChild(button);
+                    });
+                }
+
+
+                answerButtonsContainer.appendChild(numColumn);
+                answerButtonsContainer.appendChild(chordColumn);
+            }
+
+            // Handle clicks on matching game tiles
+            function handleMatchingTileClick(event) {
+                const clickedTile = event.target;
+
+                // Prevent clicking on already matched tiles
+                if (clickedTile.classList.contains('correct')) {
+                    return;
+                }
+
+                if (clickedTile.dataset.type === 'num') {
+                    if (selectedNumTile) {
+                        selectedNumTile.classList.remove('selected'); // Deselect previous
+                    }
+                    selectedNumTile = clickedTile;
+                } else { // type === 'chord'
+                    if (selectedChordTile) {
+                        selectedChordTile.classList.remove('selected'); // Deselect previous
+                    }
+                    selectedChordTile = clickedTile;
+                }
+                clickedTile.classList.add('selected');
+
+                // If one of each type is selected, check the pair
+                if (selectedNumTile && selectedChordTile) {
+                    checkMatchingPair();
+                }
+            }
+
+            // Check if the selected pair is correct
+            function checkMatchingPair() {
+                // Check if the IDs match (which links the num notation to its chord name)
+                if (selectedNumTile.dataset.id === selectedChordTile.dataset.id) {
+                    // Correct match
+                    feedbackText.textContent = '配對成功！';
+                    feedbackText.classList.remove('incorrect-text');
+                    feedbackText.classList.add('correct-text');
+                    score++;
+                    matchedPairsCount++;
+
+                    // Apply correct styling and disable interaction
+                    selectedNumTile.classList.add('correct');
+                    selectedChordTile.classList.add('correct');
+                    selectedNumTile.style.pointerEvents = 'none';
+                    selectedChordTile.style.pointerEvents = 'none';
+
+                    // Reset selection variables
+                    selectedNumTile.classList.remove('selected');
+                    selectedChordTile.classList.remove('selected');
+                    selectedNumTile = null;
+                    selectedChordTile = null;
+
+                    updateScoreDisplay();
+
+                    // Check if all pairs are matched
+                    if (matchedPairsCount === matchingGamePairs.numTiles.length) {
+                        setTimeout(() => {
+                            endQuiz(); // Reuse endQuiz for game completion message
+                        }, 500); // Short delay before showing end message
+                    }
+
+                } else {
+                    // Incorrect match
+                    feedbackText.textContent = '配對錯誤，請再試一次！';
+                    feedbackText.classList.remove('correct-text');
+                    feedbackText.classList.add('incorrect-text');
+
+                    // Briefly highlight incorrect, then reset
+                    selectedNumTile.classList.add('incorrect');
+                    selectedChordTile.classList.add('incorrect');
+
+                    setTimeout(() => {
+                        selectedNumTile.classList.remove('selected', 'incorrect');
+                        selectedChordTile.classList.remove('selected', 'incorrect');
+                        selectedNumTile = null;
+                        selectedChordTile = null;
+                    }, 700); // Highlight red for 0.7 seconds
+                }
+                totalQuestionsAttempted++; // Count each pair attempt
+                updateScoreDisplay();
+            }
+
+
+            // Function to start the quiz for a selected key (single/multi-select modes)
+            function startQuiz(key) {
+                currentKey = key;
+                currentQuestions = generateQuizQuestions(key);
+                currentQuestionIndex = 0;
+                score = 0;
+                totalQuestionsAttempted = 0;
+                quizActive = true;
+
+                keySelectionSection.classList.add('hidden');
+                chordSelectionScreen.classList.add('hidden'); // Ensure chord selection is hidden
+                quizGameSection.classList.remove('hidden');
+                restartButton.classList.add('hidden'); // Hide restart button initially
+                nextButton.textContent = "下一題"; // Reset button text for quiz modes
+
+                // Apply new styling for the key display
+                currentKeyDisplay.textContent = `${quizData[currentKey] ? quizData[currentKey].keyName : '混合練習'}測驗`; // Handle MixedPractice key name
+                currentKeyDisplay.classList.remove('text-xl', 'font-semibold', 'text-gray-800'); // Remove old styling
+                currentKeyDisplay.classList.add('text-3xl', 'font-bold', 'bg-[#F7D67D]', 'p-2', 'rounded-lg', 'inline-block');
+                currentKeyDisplay.style.color = '#4A3F35'; // Set text color directly
+
+                // Hide selected roots display in non-matching modes
+                selectedRootsDisplay.classList.add('hidden');
+
+                displayQuestion();
+                updateScoreDisplay();
+            }
+
+            // Function to display the current question (for quiz modes)
+            function displayQuestion() {
+                if (currentQuestionIndex >= currentQuestions.length) {
+                    endQuiz();
+                    return;
+                }
+
+                const question = currentQuestions[currentQuestionIndex];
+                questionText.textContent = question.question;
+                answerButtonsContainer.innerHTML = ''; // Clear previous content
+                feedbackText.textContent = '';
+
+                // Ensure answer-options container resets its display property for quiz modes
+                answerButtonsContainer.classList.remove('matching-game-columns');
+                answerButtonsContainer.classList.add('grid'); // Restore grid for quiz options
+
+                if (question.type === 'multi-select-chords') {
+                    question.options.forEach(option => {
+                        const label = document.createElement('label');
+                        label.classList.add('answer-label');
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.value = option;
+                        checkbox.classList.add('answer-checkbox');
+                        label.appendChild(checkbox);
+                        label.appendChild(document.createTextNode(option));
+                        answerButtonsContainer.appendChild(label);
+                    });
+                    nextButton.textContent = "檢查答案"; // Change button text for multi-select
+                    nextButton.classList.remove('hidden'); // Show check button
+                } else { // Single-select (default)
+                    nextButton.classList.add('hidden'); // Hide next button until answer is selected
+
+                    question.options.forEach(option => {
+                        const button = document.createElement('button');
+                        button.textContent = option;
+                        button.classList.add('answer-button');
+                        // For single-select, the click on the button itself checks the answer.
+                        button.addEventListener('click', () => checkSingleSelectAnswer(button, option, question.correctAnswer));
+                        answerButtonsContainer.appendChild(button);
+                    });
+                }
+                quizActive = true; // Re-enable answering
+            }
+
+            // Function to check single-select answers
+            function checkSingleSelectAnswer(selectedButton, userAnswer, correctAnswer) {
+                if (!quizActive) return;
+
+                quizActive = false;
+                totalQuestionsAttempted++;
+
+                const allAnswerButtons = answerButtonsContainer.querySelectorAll('.answer-button');
+                allAnswerButtons.forEach(button => {
+                    button.removeEventListener('click', () => {}); // Remove listeners
+                    button.style.pointerEvents = 'none'; // Disable clicks
+                    if (button.textContent === correctAnswer) {
+                        button.classList.add('correct');
+                    }
+                });
+
+                if (userAnswer === correctAnswer) {
+                    feedbackText.textContent = '答對了！';
+                    feedbackText.classList.remove('incorrect-text');
+                    feedbackText.classList.add('correct-text');
+                    score++;
+                    setTimeout(() => {
+                        nextQuestion();
+                    }, 500); // 0.5 second delay
+                } else {
+                    feedbackText.textContent = `答錯了！正確答案是：${correctAnswer}`;
+                    feedbackText.classList.remove('correct-text');
+                    feedbackText.classList.add('incorrect-text');
+                    selectedButton.classList.add('incorrect');
+                    nextButton.classList.remove('hidden'); // Show next button for incorrect answers
+                }
+                updateScoreDisplay();
+            }
+
+            // Function to check multi-select answers
+            // This function is NOT used for matching games.
+            function checkMultiSelectAnswer() {
+                if (!quizActive) return;
+
+                quizActive = false;
+                totalQuestionsAttempted++;
+
+                const question = currentQuestions[currentQuestionIndex];
+                const userSelectedAnswers = Array.from(answerButtonsContainer.querySelectorAll('.answer-checkbox:checked'))
+                                             .map(cb => cb.value)
+                                             .sort();
+                const correctAnswersSorted = question.correctAnswers.sort();
+
+                // Compare sorted arrays
+                const isCorrect = (userSelectedAnswers.length === correctAnswersSorted.length &&
+                                   userSelectedAnswers.every((val, index) => val === correctAnswersSorted[index]));
+
+                // Highlight checkboxes and provide feedback
+                const allCheckboxes = answerButtonsContainer.querySelectorAll('.answer-checkbox');
+                allCheckboxes.forEach(checkbox => {
+                    checkbox.disabled = true; // Disable all checkboxes after check
+                    const label = checkbox.parentNode;
+                    const checkboxValue = checkbox.value;
+
+                    if (correctAnswersSorted.includes(checkboxValue)) {
+                        label.classList.add('correct'); // Correct answer
+                    }
+                    if (checkbox.checked && !correctAnswersSorted.includes(checkboxValue)) {
+                        label.classList.add('incorrect'); // User selected a wrong option
+                    }
+                    if (!checkbox.checked && correctAnswersSorted.includes(checkboxValue)) {
+                        label.classList.add('missing-correct'); // User missed a correct option
+                    }
+                });
+
+                if (isCorrect) {
+                    feedbackText.textContent = '答對了！';
+                    feedbackText.classList.remove('incorrect-text');
+                    feedbackText.classList.add('correct-text');
+                    score++;
+                    setTimeout(() => {
+                        nextQuestion();
+                    }, 500);
+                } else {
+                    feedbackText.textContent = `答錯了！正確答案是：${correctAnswersSorted.join('、')}`;
+                    feedbackText.classList.remove('correct-text');
+                    feedbackText.classList.add('incorrect-text');
+                    nextButton.classList.remove('hidden'); // Show next button for incorrect answers
+                }
+                updateScoreDisplay();
+            }
+
+
+            // Function to update the score display
+            function updateScoreDisplay() {
+                scoreDisplay.textContent = `分數: ${score} / ${totalQuestionsAttempted}`;
+            }
+
+            // Function to move to the next question (for quiz modes)
+            function nextQuestion() {
+                currentQuestionIndex++;
+                displayQuestion();
+            }
+
+            // Function to end the quiz (for all game types)
+            function endQuiz() {
+                // Adjust message based on game type
+                if (currentKey === 'MixedMatchingGame') {
+                    questionText.textContent = `連連看遊戲結束！你成功配對了 ${score} 組和弦。`;
+                } else {
+                    questionText.textContent = `測驗結束！你的最終分數是：${score} / ${totalQuestionsAttempted}`;
+                }
+
+                answerButtonsContainer.innerHTML = '';
+                feedbackText.textContent = '恭喜你完成測驗！';
+                nextButton.classList.add('hidden');
+                restartButton.classList.remove('hidden'); // Show restart button
+                quizActive = false;
+            }
+
+            // Event Listeners
+            keyButtons.forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const selectedGameMode = event.target.dataset.key;
+                    if (selectedGameMode === 'MixedMatchingGame') {
+                        keySelectionSection.classList.add('hidden');
+                        chordSelectionScreen.classList.remove('hidden');
+                        populateChordSelection(); // Populate checkboxes when entering this screen
+                    } else {
+                        startQuiz(selectedGameMode);
+                    }
+                });
+            });
+
+            // Event listener for the "開始連連看" button on the chord selection screen
+            startMixedMatchingButton.addEventListener('click', () => {
+                const selectedCheckboxes = Array.from(document.querySelectorAll('#chord-type-options input[type="checkbox"]:checked'));
+                selectedRootLettersForMixedMatching = selectedCheckboxes.map(cb => cb.value); // Store selected root letters
+
+                if (selectedRootLettersForMixedMatching.length === 0) {
+                    feedbackText.textContent = '請至少選擇一個和弦根音！'; // Updated feedback text
+                    feedbackText.classList.add('incorrect-text');
+                    setTimeout(() => { feedbackText.textContent = ''; feedbackText.classList.remove('incorrect-text'); }, 2000);
+                    return;
+                }
+
+                startMatchingMode('MixedMatchingGame', selectedRootLettersForMixedMatching);
+            });
+
+
+            nextButton.addEventListener('click', () => {
+                // If in MixedMatchingGame mode, this button is for resetting incorrect matches
+                if (currentKey === 'MixedMatchingGame') {
+                    selectedNumTile = null;
+                    selectedChordTile = null;
+                    feedbackText.textContent = '';
+                    nextButton.classList.add('hidden');
+                    answerButtonsContainer.querySelectorAll('.matching-tile:not(.correct)').forEach(tile => {
+                        tile.style.pointerEvents = 'auto';
+                        tile.classList.remove('selected', 'incorrect');
+                    });
+                    quizActive = true;
+                    return;
+                }
+
+                // Logic for existing quiz modes (single/multi-select)
+                const currentQuestion = currentQuestions[currentQuestionIndex];
+                if (currentQuestion && currentQuestion.type === 'multi-select-chords' && quizActive) {
+                    checkMultiSelectAnswer();
+                } else {
+                    nextQuestion();
+                }
+            });
+
+            restartButton.addEventListener('click', () => {
+                quizGameSection.classList.add('hidden');
+                keySelectionSection.classList.remove('hidden');
+                feedbackText.textContent = ''; // Clear feedback
+                scoreDisplay.textContent = '分數: 0 / 0'; // Reset score display
+
+                // FIX: Removed 'color: #4A3F35;' from classList.remove() and reset style.color
+                currentKeyDisplay.classList.remove('text-3xl', 'font-bold', 'bg-[#F7D67D]', 'p-2', 'rounded-lg', 'inline-block');
+                currentKeyDisplay.style.color = ''; // Reset to default or inherited color
+                currentKeyDisplay.classList.add('text-xl', 'font-semibold', 'text-gray-800'); // Restore original classes
+                currentKeyDisplay.textContent = ''; // Clear the text
+
+                // Ensure answer-options container resets its display property
+                answerButtonsContainer.classList.remove('matching-game-columns');
+                answerButtonsContainer.classList.add('grid');
+
+                // Hide selected roots display when returning to key selection
+                selectedRootsDisplay.classList.add('hidden');
+            });
+    </script>
+</body>
+</html>
