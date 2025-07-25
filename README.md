@@ -1,2 +1,2 @@
-# guitar-quiz
+# Guitar-quiz
 TEST
