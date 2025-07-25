@@ -269,6 +269,10 @@
                 font-size: 0.9rem; /* Make font smaller */
             }
         }
+        /* New style for text input field */
+        .answer-input {
+            margin-bottom: 1.5rem; /* Space below the input field */
+        }
     </style>
 </head>
 <body>
@@ -286,7 +290,7 @@
                 <button class="key-button" data-key="F">F大調</button>
                 <button class="key-button" data-key="B">B大調</button>
                 <button class="key-button mixed-practice-button" data-key="MixedMatchingGame">混合練習</button>
-            </div>
+                <button class="key-button mixed-practice-button" data-key="ChordComponentsQuiz">和弦組成音</button> </div>
         </div>
 
         <div id="chord-selection-screen" class="chord-selection-screen hidden">
@@ -316,21 +320,15 @@
                 "chordMap": {
                     "1": "C", "2m": "Dm", "3m": "Em", "4": "F", "5": "G", "6m": "Am", "7dim": "Bdim"
                 },
-                "scaleNotes": {
-                    "C": ["C", "D", "E", "F", "G", "A", "B"],
-                    "Dm": ["D", "E", "F", "G", "A", "B", "C"],
-                    "Em": ["E", "F", "G", "A", "B", "C", "D"],
-                    "F": ["F", "G", "A", "Bb", "C", "D", "E"], 
-                    "G": ["G", "A", "B", "C", "D", "E", "F#"], 
-                    "Am": ["A", "B", "C", "D", "E", "F", "G"],
-                    "Bdim": ["B", "C", "D", "E", "F", "G", "A"]
-                },
-                "chordComponents": { // Added specific chord components
+                // Removed scaleNotes if not directly used for chord components, as `chordComponents` is more precise
+                "chordComponents": { // Added specific chord components for different chord types
                     "C": ["C", "E", "G"], "Dm": ["D", "F", "A"], "Em": ["E", "G", "B"], "F": ["F", "A", "C"],
                     "G": ["G", "B", "D"], "Am": ["A", "C", "E"], "Bdim": ["B", "D", "F"],
                     "C7": ["C", "E", "G", "Bb"], "G7": ["G", "B", "D", "F"], "D7": ["D", "F#", "A", "C"],
                     "A7": ["A", "C#", "E", "G"], "E7": ["E", "G#", "B", "D"], "F7": ["F", "A", "C", "Eb"],
                     "Bb7": ["Bb", "D", "F", "Ab"], "B7": ["B", "D#", "F#", "A"]
+                    // Add other common chords if needed, e.g., Cm, Dm, etc., if you want to quiz them
+                    // Example: "Cm": ["C", "Eb", "G"], "Ddim": ["D", "F", "Ab"]
                 }
             },
             "G": {
@@ -338,34 +336,17 @@
                 "chordMap": {
                     "1": "G", "2m": "Am", "3m": "Bm", "4": "C", "5": "D", "6m": "Em", "7dim": "F#dim"
                 },
-                "scaleNotes": {
-                    "G": ["G", "A", "B", "C", "D", "E", "F#"],
-                    "Am": ["A", "B", "C", "D", "E", "F#", "G"],
-                    "Bm": ["B", "C#", "D", "E", "F#", "G", "A"],
-                    "C": ["C", "D", "E", "F", "G", "A", "B"],
-                    "D": ["D", "E", "F#", "G", "A", "B", "C#"],
-                    "Em": ["E", "F#", "G", "A", "B", "C", "D"],
-                    "F#dim": ["F#", "G#", "A", "B", "C", "D", "E"]
-                },
                 "chordComponents": {
                     "G": ["G", "B", "D"], "Am": ["A", "C", "E"], "Bm": ["B", "D", "F#"], "C": ["C", "E", "G"],
                     "D": ["D", "F#", "A"], "Em": ["E", "G", "B"], "F#dim": ["F#", "A", "C"],
-                    "G7": ["G", "B", "D", "F"], "D7": ["D", "F#", "A", "C"]
+                    "G7": ["G", "B", "D", "F"], "D7": ["D", "F#", "A", "C"], "C7": ["C", "E", "G", "Bb"],
+                    "F#m": ["F#", "A", "C#"] // Example for other chords if they might appear in questions
                 }
             },
             "D": {
                 "keyName": "D大調",
                 "chordMap": {
                     "1": "D", "2m": "Em", "3m": "F#m", "4": "G", "5": "A", "6m": "Bm", "7dim": "C#dim"
-                },
-                "scaleNotes": {
-                    "D": ["D", "E", "F#", "G", "A", "B", "C#"],
-                    "Em": ["E", "F#", "G", "A", "B", "C#", "D"],
-                    "F#m": ["F#", "G#", "A", "B", "C#", "D", "E"],
-                    "G": ["G", "A", "B", "C", "D", "E", "F#"],
-                    "A": ["A", "B", "C#", "D", "E", "F#", "G#"],
-                    "Bm": ["B", "C#", "D", "E", "F#", "G", "A"],
-                    "C#dim": ["C#", "D#", "E", "F#", "G", "A", "B"]
                 },
                 "chordComponents": {
                     "D": ["D", "F#", "A"], "Em": ["E", "G", "B"], "F#m": ["F#", "A", "C#"], "G": ["G", "B", "D"],
@@ -378,15 +359,6 @@
                 "chordMap": {
                     "1": "A", "2m": "Bm", "3m": "C#m", "4": "D", "5": "E", "6m": "F#m", "7dim": "G#dim"
                 },
-                "scaleNotes": {
-                    "A": ["A", "B", "C#", "D", "E", "F#", "G#"],
-                    "Bm": ["B", "C#", "D", "E", "F#", "G#", "A"],
-                    "C#m": ["C#", "D#", "E", "F#", "G#", "A", "B"],
-                    "D": ["D", "E", "F#", "G", "A", "B", "C#"],
-                    "E": ["E", "F#", "G#", "A", "B", "C#", "D#"],
-                    "F#m": ["F#", "G#", "A", "B", "C#", "D", "E"],
-                    "G#dim": ["G#", "A#", "B", "C#", "D", "E", "F#"]
-                },
                 "chordComponents": {
                     "A": ["A", "C#", "E"], "Bm": ["B", "D", "F#"], "C#m": ["C#", "E", "G#"], "D": ["D", "F#", "A"],
                     "E": ["E", "G#", "B"], "F#m": ["F#", "A", "C#"], "G#dim": ["G#", "B", "D"],
@@ -397,15 +369,6 @@
                 "keyName": "E大調",
                 "chordMap": {
                     "1": "E", "2m": "F#m", "3m": "G#m", "4": "A", "5": "B", "6m": "C#m", "7dim": "D#dim"
-                },
-                "scaleNotes": {
-                    "E": ["E", "F#", "G#", "A", "B", "C#", "D#"],
-                    "F#m": ["F#", "G#", "A", "B", "C#", "D#", "E"],
-                    "G#m": ["G#", "A#", "B", "C#", "D#", "E", "F#"],
-                    "A": ["A", "B", "C#", "D", "E", "F#", "G#"],
-                    "B": ["B", "C#", "D#", "E", "F#", "G#", "A#"],
-                    "C#m": ["C#", "D#", "E", "F#", "G#", "A", "B"],
-                    "D#dim": ["D#", "E#", "F#", "G#", "A", "B", "C#"]
                 },
                 "chordComponents": {
                     "E": ["E", "G#", "B"], "F#m": ["F#", "A", "C#"], "G#m": ["G#", "B", "D#"], "A": ["A", "C#", "E"],
@@ -419,15 +382,6 @@
                     "1": "F", "2m": "Gm", "3m": "Am", "4": "Bb",
                     "5": "C", "6m": "Dm", "7dim": "Edim"
                 },
-                "scaleNotes": {
-                    "F": ["F", "G", "A", "Bb", "C", "D", "E"],
-                    "Gm": ["G", "A", "Bb", "C", "D", "E", "F"],
-                    "Am": ["A", "Bb", "C", "D", "E", "F", "G"],
-                    "Bb": ["Bb", "C", "D", "Eb", "F", "G", "A"], 
-                    "C": ["C", "D", "E", "F", "G", "A", "B"],
-                    "Dm": ["D", "E", "F", "G", "A", "Bb", "C"],
-                    "Edim": ["E", "F", "G", "A", "Bb", "C", "D"]
-                },
                 "chordComponents": {
                     "F": ["F", "A", "C"], "Gm": ["G", "Bb", "D"], "Am": ["A", "C", "E"], "Bb": ["Bb", "D", "F"],
                     "C": ["C", "E", "G"], "Dm": ["D", "F", "A"], "Edim": ["E", "G", "Bb"],
@@ -439,15 +393,6 @@
                 "chordMap": {
                     "1": "B", "2m": "C#m", "3m": "D#m", "4": "E", "5": "F#", "6m": "G#m", "7dim": "A#dim"
                 },
-                "scaleNotes": {
-                    "B": ["B", "C#", "D#", "E", "F#", "G#", "A#"],
-                    "C#m": ["C#", "D#", "E", "F#", "G#", "A#", "B"],
-                    "D#m": ["D#", "E#", "F#", "G#", "A#", "B", "C#"],
-                    "E": ["E", "F#", "G#", "A", "B", "C#", "D#"],
-                    "F#": ["F#", "G#", "A#", "B", "C#", "D#", "E#"],
-                    "G#m": ["G#", "A#", "B", "C#", "D#", "E", "F#"],
-                    "A#dim": ["A#", "B#", "C#", "D#", "E", "F#", "G#"]
-                },
                 "chordComponents": {
                     "B": ["B", "D#", "F#"], "C#m": ["C#", "E", "G#"], "D#m": ["D#", "F#", "A#"], "E": ["E", "G#", "B"],
                     "F#": ["F#", "A#", "C#"], "G#m": ["G#", "B", "D#"], "A#dim": ["A#", "C#", "E"],
@@ -456,10 +401,24 @@
             }
         };
 
-        // All possible chord types for components quiz, regardless of key
-        const allDominant7Chords = ["C7", "D7", "E7", "F7", "G7", "A7", "B7", "Bb7"]; // Added Bb7
-        const allMinorChords = ["Cm", "Dm", "Em", "Fm", "Gm", "Am", "Bm"];
-        const allMajorChords = ["C", "D", "E", "F", "G", "A", "B", "Bb"]; // Added Bb
+        // All chords with components for the "和弦組成音" quiz.
+        // This array gathers all available chords from the `chordComponents` of all keys.
+        const allComponentQuizChords = [];
+        for (const key in quizData) {
+            if (quizData[key].chordComponents) {
+                for (const chordName in quizData[key].chordComponents) {
+                    allComponentQuizChords.push({
+                        chord: chordName,
+                        components: quizData[key].chordComponents[chordName]
+                    });
+                }
+            }
+        }
+        // Ensure unique chords if a chord name appears in multiple keys (e.g., C in C major, C in F major)
+        // We'll use a Set to store unique chord names and then map back to objects.
+        const uniqueComponentQuizChords = Array.from(new Set(allComponentQuizChords.map(item => item.chord)))
+            .map(chordName => allComponentQuizChords.find(item => item.chord === chordName));
+
 
         let selectedNumTile = null;
         let selectedChordTile = null;
@@ -473,7 +432,7 @@
         let score = 0;
         let totalQuestionsAttempted = 0;
         let quizActive = false;
-        let quizMode = ''; // Added to differentiate between 'single-select', 'multi-select-components' and 'matching'
+        let quizMode = ''; // Added to differentiate between 'single-select', 'text-input-components' and 'matching'
 
         // Get DOM elements
         const keySelectionSection = document.getElementById('key-selection');
@@ -511,36 +470,23 @@
             const questions = [];
             const allKeys = Object.keys(quizData);
 
+            // --- Type: 和弦組合成音模式 (Chord Components Quiz) ---
+            // This mode takes random chords from the `uniqueComponentQuizChords`
+            if (key === 'ChordComponentsQuiz') {
+                const quizChords = shuffleArray([...uniqueComponentQuizChords]); // Create a shuffled copy
+                quizChords.forEach(item => {
+                    questions.push({
+                        question: `請輸入 ${item.chord} 的所有組成音 (用空格隔開)`,
+                        correctAnswer: item.components.map(note => note.trim()).join(' ').toLowerCase(), // Store as lowercase space-separated
+                        type: 'text-input-components'
+                    });
+                });
+                return questions; // Return only these questions for this mode
+            }
+
+            // --- Below are existing key-specific quiz types ---
             const chordMap = quizData[key].chordMap;
             const chords = Object.keys(chordMap);
-            const chordComponents = quizData[key].chordComponents; // Access chord components
-
-            // --- NEW: Type 0 - 和弦組合成音模式 (asks for notes, text input, no hint) ---
-            // We'll generate questions for common major, minor, and 7th chords from all data.
-            // This mode isn't key-specific for *question generation* but could be filtered later if needed.
-            // For now, let's pick a random set of common chords from the entire data set.
-
-            const allChordNamesWithComponents = new Set();
-            for (const k in quizData) {
-                if (quizData[k].chordComponents) {
-                    for (const chordName in quizData[k].chordComponents) {
-                        allChordNamesWithComponents.add(chordName);
-                    }
-                }
-            }
-            const componentQuizChords = shuffleArray(Array.from(allChordNamesWithComponents)).slice(0, 10); // Take 10 random chords for this type
-
-            componentQuizChords.forEach(chordName => {
-                const components = chordComponents[chordName]; // Get components for the chord
-                if (components) {
-                    questions.push({
-                        question: `請輸入 ${chordName} 的所有組成音 (用空格隔開)`, // NO HINT HERE
-                        correctAnswer: components.map(note => note.trim()).join(' ').toLowerCase(), // Store as lowercase space-separated
-                        type: 'text-input-components' // New type for text input
-                    });
-                }
-            });
-
 
             // Type 1: "在[Key]大調中，'數字表示' 代表哪個和弦？"
             chords.forEach(numNotation => {
@@ -553,8 +499,6 @@
                 });
             });
             
-            // ... (其他問題類型 Type 2, 3, 4, 5, 6 保持不變) ...
-
             // Type 2: "以下哪組數字和弦表示法，完全符合[Key]大調的順階和弦？"
             const correctSequence = Object.keys(chordMap).join(', ');
             const incorrectSequences = [
@@ -748,16 +692,21 @@
 
             if (selectedRootLetters && selectedRootLetters.length > 0) {
                 selectedRootLetters.forEach(rootLetter => {
-                    const keyData = quizData[rootLetter]; 
-                    if (keyData) { 
-                        const chordMap = keyData.chordMap;
-                        for (const numNotation in chordMap) {
-                            const chordName = chordMap[numNotation];
-                            potentialPairs.push({
-                                num: numNotation,
-                                chord: chordName,
-                                id: `${numNotation}-${chordName}-${rootLetter}`
-                            });
+                    // Find relevant keys that contain this root letter in their chordMap (as root of 1, 4, 5, etc.)
+                    // Or, for simplicity, just get chords *starting* with that root letter from all available chordComponents.
+                    // This logic needs to be careful: a rootLetter like "C" means "C chord family".
+                    // Let's iterate through all keys' chordMap to find chords where the actual chordName starts with the selected rootLetter.
+                    for (const keyId in quizData) {
+                        const currentChordMap = quizData[keyId].chordMap;
+                        for (const numNotation in currentChordMap) {
+                            const chordName = currentChordMap[numNotation];
+                            if (getChordBaseLetter(chordName) === rootLetter && !potentialPairs.some(p => p.chord === chordName && p.num === numNotation)) {
+                                potentialPairs.push({
+                                    num: numNotation,
+                                    chord: chordName,
+                                    id: `${numNotation}-${chordName}-${keyId}` // Use keyId to make ID truly unique across keys
+                                });
+                            }
                         }
                     }
                 });
@@ -768,8 +717,16 @@
                 quizActive = false;
                 return false;
             }
-
-            matchingGamePairs = shuffleArray(potentialPairs); // Shuffle the generated pairs
+            
+            // Limit pairs to a reasonable number, e.g., 10-15 unique pairs for a manageable game
+            matchingGamePairs = shuffleArray(potentialPairs).slice(0, 15); // Take up to 15 pairs
+            if (matchingGamePairs.length === 0) {
+                questionText.textContent = '選定的和弦根音沒有可用的配對組合。請選擇其他根音。';
+                answerButtonsContainer.innerHTML = '';
+                restartButton.classList.remove('hidden');
+                quizActive = false;
+                return false;
+            }
             return true;
         }
 
@@ -908,16 +865,23 @@
             answerButtonsContainer.innerHTML = '';
             nextButton.classList.add('hidden');
             restartButton.classList.add('hidden');
+            selectedRootsDisplay.classList.add('hidden'); // Hide selected roots display for all non-matching modes
 
             if (currentQuestionIndex < currentQuestions.length) {
                 const question = currentQuestions[currentQuestionIndex];
                 questionText.textContent = question.question;
                 
-                // Adjust display for standard quiz vs. mixed matching
-                currentKeyDisplay.textContent = `${quizData[currentKey] ? quizData[currentKey].keyName : '自選'} 順階和弦測驗`; 
-                currentKeyDisplay.classList.remove('text-3xl', 'font-bold', 'bg-[#F7D67D]', 'p-2', 'rounded-lg', 'inline-block');
-                currentKeyDisplay.classList.add('text-xl', 'font-semibold', 'text-gray-800'); 
-                selectedRootsDisplay.classList.add('hidden'); // Hide selected roots display for standard quiz
+                // Adjust display for standard quiz vs. mixed matching vs. chord components
+                if (quizMode === 'text-input-components') {
+                    currentKeyDisplay.textContent = '和弦組成音測驗';
+                    currentKeyDisplay.classList.remove('text-xl', 'font-semibold', 'text-gray-800');
+                    currentKeyDisplay.classList.add('text-3xl', 'font-bold', 'bg-[#F7D67D]', 'p-2', 'rounded-lg', 'inline-block');
+                    currentKeyDisplay.style.color = '#4A3F35';
+                } else { // For single-select (key-based quizzes)
+                    currentKeyDisplay.textContent = `${quizData[currentKey].keyName} 順階和弦測驗`; 
+                    currentKeyDisplay.classList.remove('text-3xl', 'font-bold', 'bg-[#F7D67D]', 'p-2', 'rounded-lg', 'inline-block');
+                    currentKeyDisplay.classList.add('text-xl', 'font-semibold', 'text-gray-800'); 
+                }
 
                 if (question.type === 'single-select') {
                     question.options.forEach(option => {
@@ -931,11 +895,11 @@
                     const input = document.createElement('input');
                     input.type = 'text';
                     input.classList.add('answer-input', 'p-2', 'border', 'border-gray-300', 'rounded-md', 'w-full', 'text-center', 'text-lg');
-                    input.placeholder = '請輸入組成音，用空格隔開'; // Specific placeholder
+                    input.placeholder = '請輸入組成音，用空格隔開'; 
                     answerButtonsContainer.appendChild(input);
 
                     const submitButton = document.createElement('button');
-                    submitButton.classList.add('next-button', 'mt-4'); // Use next-button style for submit, add margin-top
+                    submitButton.classList.add('next-button', 'mt-4'); 
                     submitButton.textContent = '提交答案';
                     submitButton.onclick = () => checkTextInputAnswer(input.value, question.correctAnswer);
                     answerButtonsContainer.appendChild(submitButton);
@@ -950,8 +914,8 @@
 
         // Check answer for single-select questions
         function checkAnswer(selectedOption, correctAnswer) {
-            if (!quizActive) return; // Prevent double clicks
-            quizActive = false; // Disable further clicks until next question
+            if (!quizActive) return; 
+            quizActive = false; 
 
             totalQuestionsAttempted++;
             const allButtons = answerButtonsContainer.querySelectorAll('.answer-button');
@@ -963,7 +927,7 @@
                 } else if (button.textContent === selectedOption && selectedOption !== correctAnswer) {
                     button.classList.add('incorrect');
                 }
-                button.disabled = true; // Disable all buttons after selection
+                button.disabled = true; 
             });
 
             if (isCorrect) {
@@ -982,13 +946,13 @@
                 currentQuestionIndex++;
                 updateScoreDisplay();
                 displayQuestion();
-            }, 1000); // 1 second delay
+            }, 1000); 
         }
 
         // Check answer for text-input-components questions
         function checkTextInputAnswer(userInput, correctAnswer) {
-            if (!quizActive) return; // Prevent double clicks
-            quizActive = false; // Disable further clicks until next question
+            if (!quizActive) return; 
+            quizActive = false; 
 
             totalQuestionsAttempted++;
             // Normalize user input: remove extra spaces, split by space, sort, join
@@ -1009,6 +973,7 @@
                 feedbackText.classList.remove('incorrect-text');
                 feedbackText.classList.add('correct-text');
             } else {
+                // Correct answer needs to be displayed in proper case for user readability
                 feedbackText.textContent = `✗ 不正確，正確答案是：${correctAnswer.split(' ').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')}`;
                 feedbackText.classList.remove('correct-text');
                 feedbackText.classList.add('incorrect-text');
@@ -1019,7 +984,7 @@
                 currentQuestionIndex++;
                 updateScoreDisplay();
                 displayQuestion();
-            }, 1000); // 1 second delay
+            }, 1000); 
         }
 
 
@@ -1079,9 +1044,9 @@
                     keySelectionSection.classList.add('hidden');
                     chordSelectionScreen.classList.remove('hidden');
                     populateChordSelection(); // Populate the checkboxes
-                } else {
-                    currentKey = selectedKey;
-                    quizMode = 'single-select'; // Default to single-select for key-based quizzes
+                } else if (selectedKey === 'ChordComponentsQuiz') { // NEW MODE SELECTION
+                    currentKey = selectedKey; // Set special key for this mode
+                    quizMode = 'text-input-components';
                     currentQuestions = generateQuizQuestions(currentKey);
                     if (currentQuestions.length > 0) {
                         keySelectionSection.classList.add('hidden');
@@ -1089,7 +1054,20 @@
                         displayQuestion();
                         updateScoreDisplay();
                     } else {
-                        // Handle case where no questions are generated (e.g., error in data)
+                        questionText.textContent = "和弦組成音測驗題目不足。";
+                        restartButton.classList.remove('hidden');
+                    }
+                } 
+                else { // Standard key-based quizzes
+                    currentKey = selectedKey;
+                    quizMode = 'single-select'; 
+                    currentQuestions = generateQuizQuestions(currentKey);
+                    if (currentQuestions.length > 0) {
+                        keySelectionSection.classList.add('hidden');
+                        quizGameSection.classList.remove('hidden');
+                        displayQuestion();
+                        updateScoreDisplay();
+                    } else {
                         questionText.textContent = "此調性目前沒有可用的測驗題目。";
                         restartButton.classList.remove('hidden');
                     }
