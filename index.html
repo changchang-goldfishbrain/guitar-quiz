@@ -135,4 +135,275 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="header">金魚
+        <h1 class="header">金魚腦的吉他樂理小補丁</h1>
+
+        <div id="modeSelection">
+            <p class="text-lg text-gray-700 mb-4" style="color: #6B6055;">請選擇遊戲模式:</p>
+            <div class="mode-selection flex justify-center gap-4">
+                <button class="button-primary" onclick="startGame('chord')">和弦組成音</button>
+                <button class="button-primary" onclick="startGame('scale')">音階組成音</button>
+            </div>
+        </div>
+
+        <div id="gameScreen" class="hidden">
+            <h2 id="quizModeTitle" class="text-2xl font-semibold text-gray-800 mb-4"></h2>
+            <p class="text-base text-gray-600 mb-2">目標：答對 <span id="questionsToPass">10</span> 題即可過關！</p>
+            <p class="text-lg font-medium text-gray-700 mb-6">
+                目前分數: <span id="currentScore">0</span>, 已答對: <span id="correctCount">0</span>/<span id="questionsToPassDisplay">10</span>
+            </p>
+
+            <h3 id="questionNumber" class="text-xl font-bold text-gray-800 mb-4">第 1 題</h3>
+            <p id="questionText" class="text-2xl font-semibold text-gray-800 mb-6"></p>
+            <input type="text" id="userInput" placeholder="輸入組成音 (用空格隔開)" autofocus>
+
+            <button id="submitAnswer" class="button-primary mt-4">提交答案</button>
+            <button id="nextQuestion" class="button-primary mt-4 hidden">下一題</button>
+            
+            <div id="resultMessage" class="result-message hidden"></div>
+            <div id="correctAnswerDisplay" class="info mt-4 hidden"></div>
+        </div>
+
+        <div id="gameOverScreen" class="hidden">
+            <p class="final-message" id="finalMessage"></p>
+            <p class="text-lg font-medium text-gray-700 mt-4">最終分數: <span id="finalScore"></span></p>
+            <p class="text-lg font-medium text-gray-700">成功打敗了您的金魚腦！</p>
+            <button id="restartGame" class="button-restart mt-6">再次挑戰</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 遊戲資料庫 ---
+        const CHORDS = {
+            "C Major": ["C", "E", "G"],
+            "G Major": ["G", "B", "D"],
+            "D Major": ["D", "F#", "A"],
+            "A Minor": ["A", "C", "E"],
+            "E Minor": ["E", "G", "B"],
+            "F Major": ["F", "A", "C"],
+            "Bb Major": ["Bb", "D", "F"],
+            "C7": ["C", "E", "G", "Bb"],
+            "Am7": ["A", "C", "E", "G"],
+            "G7": ["G", "B", "D", "F"]
+        };
+
+        const SCALES = {
+            "C Major Scale": ["C", "D", "E", "F", "G", "A", "B"],
+            "G Major Scale": ["G", "A", "B", "C", "D", "E", "F#"],
+            "D Major Scale": ["D", "E", "F#", "G", "A", "B", "C#"],
+            "A Minor Scale": ["A", "B", "C", "D", "E", "F", "G"],
+            "E Minor Scale": ["E", "F#", "G", "A", "B", "C", "D"],
+            "C Major Pentatonic": ["C", "D", "E", "G", "A"],
+            "A Minor Pentatonic": ["A", "C", "D", "E", "G"],
+            "A Blues Scale": ["A", "C", "D", "Eb", "E", "G"]
+        };
+
+        // --- 遊戲狀態變數 ---
+        let currentQuizData = null;
+        let currentQuizMode = ""; // Changed from currentQuizName to currentQuizMode for clarity
+        let score = 0;
+        let correctCount = 0;
+        let questionsAsked = 0;
+        const questionsToPass = 10;
+        let currentQuestion = { name: "", notes: [] };
+        let isAnswerSubmitted = false; // Flag to prevent multiple submissions
+
+        // --- DOM 元素快取 ---
+        const modeSelectionDiv = document.getElementById('modeSelection');
+        const gameScreenDiv = document.getElementById('gameScreen');
+        const gameOverScreenDiv = document.getElementById('gameOverScreen');
+        const quizModeTitle = document.getElementById('quizModeTitle');
+        const currentScoreSpan = document.getElementById('currentScore');
+        const correctCountSpan = document.getElementById('correctCount');
+        const questionsToPassDisplaySpan = document.getElementById('questionsToPassDisplay');
+        const questionNumberH3 = document.getElementById('questionNumber');
+        const questionTextP = document.getElementById('questionText');
+        const userInput = document.getElementById('userInput');
+        const submitButton = document.getElementById('submitAnswer');
+        const nextQuestionButton = document.getElementById('nextQuestion');
+        const resultMessageDiv = document.getElementById('resultMessage');
+        const correctAnswerDisplayDiv = document.getElementById('correctAnswerDisplay');
+        const finalMessageP = document.getElementById('finalMessage');
+        const finalScoreSpan = document.getElementById('finalScore');
+        const restartGameButton = document.getElementById('restartGame');
+
+        questionsToPassDisplaySpan.textContent = questionsToPass; // 初始化顯示過關題數
+
+        // --- 輔助函數 ---
+        function normalizeNotes(notesList) {
+            // 將音名轉換為大寫，並處理一些常見的升降號寫法，然後排序
+            return notesList.map(note => {
+                let n = note.toUpperCase();
+                // Handle sharps and flats properly
+                if (n.length > 1 && (n[1] === '#' || n[1].toLowerCase() === 'b')) {
+                    return n[0] + (n[1] === '#' ? '#' : 'b'); // Keep '#' or 'b' as is
+                }
+                return n;
+            }).sort();
+        }
+
+        function checkAnswer(userAnswer, correctNotes) {
+            const userNotes = userAnswer.split(/\s+/).filter(n => n); // 用空格分割，並移除空字串
+            if (userNotes.length !== correctNotes.length) {
+                return false;
+            }
+            return JSON.stringify(normalizeNotes(userNotes)) === JSON.stringify(normalizeNotes(correctNotes));
+        }
+
+        function updateDisplay() {
+            currentScoreSpan.textContent = score;
+            correctCountSpan.textContent = correctCount;
+            questionNumberH3.textContent = `第 ${questionsAsked} 題`;
+        }
+
+        function resetForNewQuestion() {
+            userInput.value = ''; // 清空輸入框
+            userInput.disabled = false; // 啟用輸入框
+            submitButton.classList.remove('hidden'); // 顯示提交按鈕
+            nextQuestionButton.classList.add('hidden'); // 隱藏下一題按鈕
+            resultMessageDiv.classList.add('hidden'); // 隱藏結果訊息
+            resultMessageDiv.className = 'result-message'; // 清除結果訊息樣式
+            resultMessageDiv.textContent = ''; // 清空結果訊息
+            correctAnswerDisplayDiv.classList.add('hidden'); // 隱藏正確答案
+            correctAnswerDisplayDiv.textContent = '';
+            userInput.focus(); // 輸入框自動聚焦
+            isAnswerSubmitted = false; // 重設提交狀態
+        }
+
+        function generateQuestion() {
+            // 如果已經答對足夠的題目，就結束遊戲
+            if (correctCount >= questionsToPass) {
+                endGame(true); // 達到過關條件
+                return;
+            }
+
+            questionsAsked++;
+            resetForNewQuestion();
+
+            const questionNames = Object.keys(currentQuizData);
+            const randomIndex = Math.floor(Math.random() * questionNames.length);
+            const qName = questionNames[randomIndex];
+            const qNotes = currentQuizData[qName];
+
+            currentQuestion = { name: qName, notes: qNotes };
+            
+            // 根據模式決定是否顯示提示
+            if (currentQuizMode === 'chord') {
+                questionTextP.textContent = `請輸入 ${currentQuestion.name} 的所有組成音 (用空格隔開)`;
+                userInput.placeholder = "輸入組成音 (例如：C E G)";
+            } else { // 'scale' 模式仍然顯示提示
+                questionTextP.textContent = `請輸入 ${currentQuestion.name} 的所有組成音 (用空格隔開，例如：${currentQuestion.notes.join(' ')})`;
+                userInput.placeholder = `輸入組成音 (例如：${currentQuestion.notes.join(' ')})`;
+            }
+            updateDisplay();
+        }
+
+        function handleAnswer() {
+            if (isAnswerSubmitted) return; // 防止重複提交
+            isAnswerSubmitted = true; // 標記為已提交
+
+            const userAnswer = userInput.value.trim();
+
+            userInput.disabled = true; // 禁用輸入框
+            submitButton.classList.add('hidden'); // 隱藏提交按鈕
+
+            const isCorrect = checkAnswer(userAnswer, currentQuestion.notes);
+
+            if (isCorrect) {
+                resultMessageDiv.textContent = '👍 正確！';
+                resultMessageDiv.className = 'result-message correct';
+                score += 10;
+                correctCount++;
+                correctAnswerDisplayDiv.classList.add('hidden'); // 正確時隱藏正確答案提示
+                // 答對後自動跳轉
+                setTimeout(() => {
+                    generateQuestion();
+                }, 1000); // 1秒後自動跳轉
+            } else {
+                resultMessageDiv.textContent = '❌ 錯誤！';
+                resultMessageDiv.className = 'result-message incorrect';
+                
+                // Display the correct answer in proper capitalization
+                const displayCorrectAnswer = currentQuestion.notes.map(note => {
+                    if (note.length > 1 && (note[1] === '#' || note[1].toLowerCase() === 'b')) {
+                        return note[0].toUpperCase() + note[1];
+                    }
+                    return note.charAt(0).toUpperCase() + note.slice(1);
+                }).join(' ');
+
+                correctAnswerDisplayDiv.textContent = `正確答案是: ${displayCorrectAnswer}`;
+                correctAnswerDisplayDiv.classList.remove('hidden');
+                nextQuestionButton.classList.remove('hidden'); // 錯誤時顯示下一題按鈕，讓使用者手動跳轉
+            }
+            resultMessageDiv.classList.remove('hidden'); // 顯示結果訊息
+            updateDisplay();
+        }
+
+        function endGame(passed = false) {
+            gameScreenDiv.classList.add('hidden');
+            gameOverScreenDiv.classList.remove('hidden');
+            
+            if (passed) {
+                finalMessageP.textContent = `恭喜您！在 ${questionsAsked} 題中答對了 ${correctCount} 題，成功過關！`;
+                finalMessageP.classList.add('correct');
+                finalMessageP.classList.remove('incorrect');
+            } else {
+                finalMessageP.textContent = `遊戲結束！您答對了 ${correctCount} 題。`;
+                finalMessageP.classList.add('incorrect');
+                finalMessageP.classList.remove('correct');
+            }
+            finalScoreSpan.textContent = score;
+        }
+
+        function restartGame() {
+            score = 0;
+            correctCount = 0;
+            questionsAsked = 0;
+            currentQuizData = null;
+            currentQuizMode = "";
+            currentQuestion = { name: "", notes: [] };
+            isAnswerSubmitted = false;
+
+            gameOverScreenDiv.classList.add('hidden');
+            modeSelectionDiv.classList.remove('hidden');
+            updateDisplay();
+        }
+
+        // --- 事件監聽器 ---
+        submitButton.addEventListener('click', () => handleAnswer());
+        nextQuestionButton.addEventListener('click', () => generateQuestion());
+        restartGameButton.addEventListener('click', () => restartGame());
+
+        // 允許按 Enter 提交答案或跳轉
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                if (!userInput.disabled) { // 如果輸入框未禁用，則提交答案
+                    handleAnswer();
+                } else if (!nextQuestionButton.classList.contains('hidden')) { // 如果輸入框已禁用且「下一題」按鈕可見，則跳轉到下一題 (用於答錯時)
+                    generateQuestion();
+                } else if (isAnswerSubmitted && resultMessageDiv.classList.contains('correct')) { // 如果已提交且答對，則自動跳轉 (用於快速連答)
+                    // Do nothing, setTimeout will handle
+                }
+            }
+        });
+
+        // --- 遊戲啟動點 ---
+        function startGame(mode) {
+            if (mode === 'chord') {
+                currentQuizData = CHORDS;
+                currentQuizMode = "chord";
+                quizModeTitle.textContent = `--- 進入 和弦組成音 模式 ---`;
+            } else if (mode === 'scale') {
+                currentQuizData = SCALES;
+                currentQuizMode = "scale";
+                quizModeTitle.textContent = `--- 進入 音階組成音 模式 ---`;
+            }
+            
+            modeSelectionDiv.classList.add('hidden');
+            gameScreenDiv.classList.remove('hidden');
+            generateQuestion(); // 開始第一道題
+            updateDisplay(); // 更新分數和題數顯示
+        }
+
+    </script>
+</body>
+</html>
