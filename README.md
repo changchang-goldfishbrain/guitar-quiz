@@ -1,2 +1,351 @@
-# index.html
-TEST
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金魚腦的吉他樂理小補丁 (無時間限制)</title>
+    <style>
+        /* CSS 樣式 */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            font-size: 1.5em;
+        }
+        .mode-selection button, #submitAnswer, #nextQuestion, #restartGame {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .mode-selection button:hover, #submitAnswer:hover, #nextQuestion:hover, #restartGame:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+        #restartGame {
+            background-color: #007bff;
+        }
+        #restartGame:hover {
+            background-color: #0056b3;
+        }
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin: 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1.1em;
+            box-sizing: border-box; /* 確保 padding 和 border 不會增加元素總寬度 */
+        }
+        .result-message {
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.2em;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .correct {
+            color: #28a745;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        .incorrect {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            color: #007bff;
+            background-color: #e0f2ff;
+            border: 1px solid #b3d9ff;
+        }
+        /* 時間條相關的 CSS 已移除 */
+        .hidden {
+            display: none;
+        }
+        #modeSelection, #gameScreen, #gameOverScreen {
+            animation: fadeIn 0.5s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .final-message {
+            font-size: 1.5em;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>金魚腦的吉他樂理小補丁</h1>
+
+        <div id="modeSelection">
+            <p>請選擇遊戲模式:</p>
+            <div class="mode-selection">
+                <button onclick="startGame('chord')">和弦組成音</button>
+                <button onclick="startGame('scale')">音階組成音</button>
+            </div>
+        </div>
+
+        <div id="gameScreen" class="hidden">
+            <h2 id="quizModeTitle"></h2>
+            <p>目標：答對 <span id="questionsToPass">10</span> 題即可過關！</p>
+            <p>目前分數: <span id="currentScore">0</span>, 已答對: <span id="correctCount">0</span>/<span id="questionsToPassDisplay">10</span></p>
+
+            <h3 id="questionNumber">第 1 題</h3>
+            <p id="questionText"></p>
+            <input type="text" id="userInput" placeholder="輸入組成音 (用空格隔開，例如：C E G)" autofocus>
+
+            <button id="submitAnswer">提交答案</button>
+            <button id="nextQuestion" class="hidden">下一題</button>
+            
+            <div id="resultMessage" class="result-message"></div>
+            <div id="correctAnswerDisplay" class="info hidden"></div>
+        </div>
+
+        <div id="gameOverScreen" class="hidden">
+            <p class="final-message" id="finalMessage"></p>
+            <p>最終分數: <span id="finalScore"></span></p>
+            <p>成功打敗了您的金魚腦！</p>
+            <button id="restartGame">再次挑戰</button>
+        </div>
+    </div>
+
+    <script>
+        // --- 遊戲資料庫 ---
+        const CHORDS = {
+            "C Major": ["C", "E", "G"],
+            "G Major": ["G", "B", "D"],
+            "D Major": ["D", "F#", "A"],
+            "A Minor": ["A", "C", "E"],
+            "E Minor": ["E", "G", "B"],
+            "F Major": ["F", "A", "C"],
+            "Bb Major": ["Bb", "D", "F"],
+            "C7": ["C", "E", "G", "Bb"],
+            "Am7": ["A", "C", "E", "G"],
+            "G7": ["G", "B", "D", "F"]
+        };
+
+        const SCALES = {
+            "C Major Scale": ["C", "D", "E", "F", "G", "A", "B"],
+            "G Major Scale": ["G", "A", "B", "C", "D", "E", "F#"],
+            "D Major Scale": ["D", "E", "F#", "G", "A", "B", "C#"],
+            "A Minor Scale": ["A", "B", "C", "D", "E", "F", "G"],
+            "E Minor Scale": ["E", "F#", "G", "A", "B", "C", "D"],
+            "C Major Pentatonic": ["C", "D", "E", "G", "A"],
+            "A Minor Pentatonic": ["A", "C", "D", "E", "G"],
+            "A Blues Scale": ["A", "C", "D", "Eb", "E", "G"]
+        };
+
+        // --- 遊戲狀態變數 ---
+        let currentQuizData = null;
+        let currentQuizName = "";
+        let score = 0;
+        let correctCount = 0;
+        let questionsAsked = 0;
+        const questionsToPass = 10;
+        let currentQuestion = { name: "", notes: [] };
+
+        // --- DOM 元素快取 ---
+        const modeSelectionDiv = document.getElementById('modeSelection');
+        const gameScreenDiv = document.getElementById('gameScreen');
+        const gameOverScreenDiv = document.getElementById('gameOverScreen');
+        const quizModeTitle = document.getElementById('quizModeTitle');
+        const currentScoreSpan = document.getElementById('currentScore');
+        const correctCountSpan = document.getElementById('correctCount');
+        const questionsToPassDisplaySpan = document.getElementById('questionsToPassDisplay');
+        const questionNumberH3 = document.getElementById('questionNumber');
+        const questionTextP = document.getElementById('questionText');
+        const userInput = document.getElementById('userInput');
+        const submitButton = document.getElementById('submitAnswer');
+        const nextQuestionButton = document.getElementById('nextQuestion');
+        const resultMessageDiv = document.getElementById('resultMessage');
+        const correctAnswerDisplayDiv = document.getElementById('correctAnswerDisplay');
+        // 時間條相關的 DOM 元素已移除
+        const finalMessageP = document.getElementById('finalMessage');
+        const finalScoreSpan = document.getElementById('finalScore');
+        const restartGameButton = document.getElementById('restartGame');
+
+        questionsToPassDisplaySpan.textContent = questionsToPass; // 初始化顯示過關題數
+
+        // --- 輔助函數 ---
+        function normalizeNotes(notesList) {
+            // 將音名轉換為大寫，並處理一些常見的升降號寫法，然後排序
+            return notesList.map(note => {
+                let n = note.toUpperCase();
+                if (n.length > 1 && (n[1] === '#' || n[1] === 'B')) {
+                    n = n[0] + (n[1] === '#' ? '#' : 'b');
+                }
+                return n;
+            }).sort();
+        }
+
+        function checkAnswer(userAnswer, correctNotes) {
+            const userNotes = userAnswer.split(/\s+/).filter(n => n); // 用空格分割，並移除空字串
+            if (userNotes.length !== correctNotes.length) {
+                return false;
+            }
+            return JSON.stringify(normalizeNotes(userNotes)) === JSON.stringify(normalizeNotes(correctNotes));
+        }
+
+        function updateDisplay() {
+            currentScoreSpan.textContent = score;
+            correctCountSpan.textContent = correctCount;
+            questionNumberH3.textContent = `第 ${questionsAsked} 題`;
+        }
+
+        function resetForNewQuestion() {
+            userInput.value = ''; // 清空輸入框
+            userInput.disabled = false; // 啟用輸入框
+            submitButton.classList.remove('hidden'); // 顯示提交按鈕
+            nextQuestionButton.classList.add('hidden'); // 隱藏下一題按鈕
+            resultMessageDiv.className = 'result-message'; // 清除結果訊息樣式
+            resultMessageDiv.textContent = ''; // 清空結果訊息
+            correctAnswerDisplayDiv.classList.add('hidden'); // 隱藏正確答案
+            correctAnswerDisplayDiv.textContent = '';
+            userInput.focus(); // 輸入框自動聚焦
+        }
+
+        function generateQuestion() {
+            if (correctCount >= questionsToPass) {
+                endGame(true); // 達到過關條件
+                return;
+            }
+
+            questionsAsked++;
+            resetForNewQuestion();
+
+            const questionNames = Object.keys(currentQuizData);
+            const randomIndex = Math.floor(Math.random() * questionNames.length);
+            const qName = questionNames[randomIndex];
+            const qNotes = currentQuizData[qName];
+
+            currentQuestion = { name: qName, notes: qNotes };
+            questionTextP.textContent = `請輸入 ${currentQuestion.name} 的所有組成音 (用空格隔開，例如：${currentQuestion.notes.join(' ')})`;
+        }
+
+        function handleAnswer() {
+            const userAnswer = userInput.value.trim();
+
+            userInput.disabled = true; // 禁用輸入框
+            submitButton.classList.add('hidden'); // 隱藏提交按鈕
+            nextQuestionButton.classList.remove('hidden'); // 顯示下一題按鈕
+
+            if (checkAnswer(userAnswer, currentQuestion.notes)) {
+                resultMessageDiv.textContent = '👍 正確！';
+                resultMessageDiv.className = 'result-message correct';
+                score += 10;
+                correctCount++;
+            } else {
+                resultMessageDiv.textContent = '❌ 錯誤！';
+                resultMessageDiv.className = 'result-message incorrect';
+            }
+            correctAnswerDisplayDiv.textContent = `正確答案是: ${currentQuestion.notes.join(' ')}`;
+            correctAnswerDisplayDiv.classList.remove('hidden');
+            updateDisplay();
+
+            // 如果已經過關，就顯示結束畫面
+            if (correctCount >= questionsToPass) {
+                setTimeout(() => endGame(true), 1500); // 延遲一下顯示結果，然後結束遊戲
+            }
+        }
+
+        function endGame(passed = false) {
+            gameScreenDiv.classList.add('hidden');
+            gameOverScreenDiv.classList.remove('hidden');
+            
+            if (passed) {
+                finalMessageP.textContent = `恭喜您！在 ${questionsAsked} 題中答對了 ${correctCount} 題，成功過關！`;
+                finalMessageP.classList.add('correct');
+                finalMessageP.classList.remove('incorrect');
+            } else {
+                finalMessageP.textContent = `遊戲結束！您答對了 ${correctCount} 題。`;
+                finalMessageP.classList.add('incorrect');
+                finalMessageP.classList.remove('correct');
+            }
+            finalScoreSpan.textContent = score;
+        }
+
+        function restartGame() {
+            score = 0;
+            correctCount = 0;
+            questionsAsked = 0;
+            currentQuizData = null;
+            currentQuizName = "";
+            currentQuestion = { name: "", notes: [] };
+
+            gameOverScreenDiv.classList.add('hidden');
+            modeSelectionDiv.classList.remove('hidden');
+            updateDisplay();
+        }
+
+        // --- 事件監聽器 ---
+        submitButton.addEventListener('click', () => handleAnswer());
+        nextQuestionButton.addEventListener('click', () => generateQuestion());
+        restartGameButton.addEventListener('click', () => restartGame());
+
+        // 允許按 Enter 提交答案
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                if (!userInput.disabled) { // 只有在輸入框可用的時候才觸發提交
+                    handleAnswer();
+                } else if (!nextQuestionButton.classList.contains('hidden')) { // 否則按 Enter 就是下一題
+                    generateQuestion();
+                }
+            }
+        });
+
+        // --- 遊戲啟動點 ---
+        function startGame(mode) {
+            if (mode === 'chord') {
+                currentQuizData = CHORDS;
+                currentQuizName = "和弦組成音";
+            } else if (mode === 'scale') {
+                currentQuizData = SCALES;
+                currentQuizName = "音階組成音";
+            }
+            
+            quizModeTitle.textContent = `--- 進入 ${currentQuizName} 模式 ---`;
+            modeSelectionDiv.classList.add('hidden');
+            gameScreenDiv.classList.remove('hidden');
+            generateQuestion(); // 開始第一道題
+            updateDisplay(); // 更新分數和題數顯示
+        }
+
+    </script>
+</body>
+</html>
