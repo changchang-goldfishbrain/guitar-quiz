@@ -128,7 +128,7 @@
 
             <h3 id="questionNumber">第 1 題</h3>
             <p id="questionText"></p>
-            <input type="text" id="userInput" placeholder="輸入組成音 (用空格隔開，例如：C E G)" autofocus>
+            <input type="text" id="userInput" placeholder="輸入組成音 (用空格隔開)" autofocus>
 
             <button id="submitAnswer">提交答案</button>
             <button id="nextQuestion" class="hidden">下一題</button>
@@ -255,7 +255,8 @@
             const qNotes = currentQuizData[qName];
 
             currentQuestion = { name: qName, notes: qNotes };
-            questionTextP.textContent = `請輸入 ${currentQuestion.name} 的所有組成音 (用空格隔開，例如：${currentQuestion.notes.join(' ')})`;
+            // 修改這行，移除例如提示
+            questionTextP.textContent = `請輸入 ${currentQuestion.name} 的所有組成音 (用空格隔開)`;
         }
 
         function handleAnswer() {
