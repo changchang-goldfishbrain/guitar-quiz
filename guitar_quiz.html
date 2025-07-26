@@ -195,7 +195,6 @@
         const nextQuestionButton = document.getElementById('nextQuestion');
         const resultMessageDiv = document.getElementById('resultMessage');
         const correctAnswerDisplayDiv = document.getElementById('correctAnswerDisplay');
-        // 時間條相關的 DOM 元素已移除
         const finalMessageP = document.getElementById('finalMessage');
         const finalScoreSpan = document.getElementById('finalScore');
         const restartGameButton = document.getElementById('restartGame');
@@ -255,7 +254,6 @@
             const qNotes = currentQuizData[qName];
 
             currentQuestion = { name: qName, notes: qNotes };
-            // 修改這行，移除例如提示
             questionTextP.textContent = `請輸入 ${currentQuestion.name} 的所有組成音 (用空格隔開)`;
         }
 
@@ -264,25 +262,28 @@
 
             userInput.disabled = true; // 禁用輸入框
             submitButton.classList.add('hidden'); // 隱藏提交按鈕
-            nextQuestionButton.classList.remove('hidden'); // 顯示下一題按鈕
-
+            
             if (checkAnswer(userAnswer, currentQuestion.notes)) {
                 resultMessageDiv.textContent = '👍 正確！';
                 resultMessageDiv.className = 'result-message correct';
                 score += 10;
                 correctCount++;
+                // 答對時自動跳轉下一題
+                setTimeout(() => {
+                    if (correctCount < questionsToPass) { // 避免過關後還生成新題
+                        generateQuestion();
+                    } else {
+                        endGame(true); // 達到過關條件
+                    }
+                }, 1000); // 1秒後自動跳轉
             } else {
                 resultMessageDiv.textContent = '❌ 錯誤！';
                 resultMessageDiv.className = 'result-message incorrect';
+                correctAnswerDisplayDiv.textContent = `正確答案是: ${currentQuestion.notes.join(' ')}`;
+                correctAnswerDisplayDiv.classList.remove('hidden');
+                nextQuestionButton.classList.remove('hidden'); // 答錯時顯示下一題按鈕
             }
-            correctAnswerDisplayDiv.textContent = `正確答案是: ${currentQuestion.notes.join(' ')}`;
-            correctAnswerDisplayDiv.classList.remove('hidden');
             updateDisplay();
-
-            // 如果已經過關，就顯示結束畫面
-            if (correctCount >= questionsToPass) {
-                setTimeout(() => endGame(true), 1500); // 延遲一下顯示結果，然後結束遊戲
-            }
         }
 
         function endGame(passed = false) {
@@ -324,7 +325,7 @@
             if (event.key === 'Enter') {
                 if (!userInput.disabled) { // 只有在輸入框可用的時候才觸發提交
                     handleAnswer();
-                } else if (!nextQuestionButton.classList.contains('hidden')) { // 否則按 Enter 就是下一題
+                } else if (!nextQuestionButton.classList.contains('hidden')) { // 否則按 Enter 就是下一題（答錯時）
                     generateQuestion();
                 }
             }
