@@ -8,8 +8,8 @@
         /* CSS 樣式 */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
-            color: #333;
+            background-color: #f0f8f8; /* 柔和淺藍綠背景 */
+            color: #4a4a4a; /* 深灰文字，比純黑更柔和 */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -20,92 +20,122 @@
         }
         .container {
             background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            border-radius: 15px; /* 更圓潤的邊角 */
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08); /* 更柔和的陰影 */
             padding: 40px;
             width: 100%;
-            max-width: 600px;
+            max-width: 650px; /* 稍微增加最大寬度 */
             text-align: center;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #e0eaea; /* 柔和的邊框 */
         }
         h1 {
-            color: #2c3e50;
+            color: #2e8b8c; /* 較深的藍綠色標題 */
             margin-bottom: 25px;
-            font-size: 2em;
+            font-size: 2.2em; /* 稍微放大標題 */
+            letter-spacing: 1px; /* 增加字母間距 */
         }
         h2 {
-            color: #34495e;
+            color: #4682b4; /* 較溫暖的藍色副標題 */
             margin-top: 30px;
-            font-size: 1.5em;
+            font-size: 1.6em;
         }
+        p {
+            line-height: 1.6; /* 增加行高，提升閱讀性 */
+        }
+
+        /* 按鈕基礎樣式 */
         .mode-selection button, #submitAnswer, #nextQuestion, #restartGame {
-            background-color: #4CAF50;
+            background-color: #66cdaa; /* 柔和的淺海綠色 */
             color: white;
-            padding: 12px 25px;
+            padding: 14px 30px; /* 增加內邊距 */
             border: none;
-            border-radius: 8px;
+            border-radius: 25px; /* 更圓潤的按鈕 */
             cursor: pointer;
-            font-size: 1.1em;
-            margin: 8px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 1.15em; /* 稍微放大字體 */
+            margin: 10px; /* 增加按鈕間距 */
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            outline: none; /* 移除點擊後的邊框 */
         }
-        .mode-selection button:hover, #submitAnswer:hover, #nextQuestion:hover, #restartGame:hover {
-            background-color: #45a049;
-            transform: translateY(-2px);
+        .mode-selection button:hover, #submitAnswer:hover, #nextQuestion:hover {
+            background-color: #5cb59f; /* 滑鼠懸停時稍深的顏色 */
+            transform: translateY(-3px); /* 輕微上浮效果 */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
+        /* 重啟按鈕獨立顏色 */
         #restartGame {
-            background-color: #007bff;
+            background-color: #87cefa; /* 柔和的天藍色 */
         }
         #restartGame:hover {
-            background-color: #0056b3;
+            background-color: #72b2e5; /* 滑鼠懸停時稍深的顏色 */
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
+
         input[type="text"] {
-            width: calc(100% - 20px);
-            padding: 12px;
-            margin: 20px 0;
-            border: 1px solid #ccc;
-            border-radius: 8px;
+            width: calc(100% - 40px); /* 調整寬度以適應新 padding */
+            padding: 15px; /* 增加輸入框內邊距 */
+            margin: 25px 0; /* 增加上下間距 */
+            border: 1px solid #b0e0e6; /* 柔和的藍綠色邊框 */
+            border-radius: 10px; /* 圓潤邊角 */
             font-size: 1.1em;
-            box-sizing: border-box; /* 確保 padding 和 border 不會增加元素總寬度 */
+            box-sizing: border-box;
+            text-align: center; /* 輸入文字置中 */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            outline: none; /* 移除點擊後的邊框 */
         }
+        input[type="text"]:focus {
+            border-color: #66cdaa; /* 聚焦時邊框顏色 */
+            box-shadow: 0 0 0 3px rgba(102, 205, 170, 0.3); /* 柔和的聚焦陰影 */
+        }
+
         .result-message {
-            margin-top: 20px;
+            margin-top: 25px; /* 增加間距 */
             font-weight: bold;
-            font-size: 1.2em;
-            padding: 10px;
-            border-radius: 5px;
+            font-size: 1.3em; /* 稍微放大字體 */
+            padding: 12px;
+            border-radius: 8px;
+            animation: slideInUp 0.5s ease-out; /* 加入顯示動畫 */
         }
         .correct {
-            color: #28a745;
-            background-color: #d4edda;
-            border: 1px solid #c3e6cb;
+            color: #388e3c; /* 較深的綠色 */
+            background-color: #e6ffe6; /* 非常淺的綠色背景 */
+            border: 1px solid #a8e6a8; /* 柔和的綠色邊框 */
         }
         .incorrect {
-            color: #dc3545;
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
+            color: #d32f2f; /* 較深的紅色 */
+            background-color: #ffe6e6; /* 非常淺的紅色背景 */
+            border: 1px solid #e6b3b3; /* 柔和的紅色邊框 */
         }
         .info {
-            color: #007bff;
-            background-color: #e0f2ff;
-            border: 1px solid #b3d9ff;
+            color: #2196f3; /* 較深的藍色 */
+            background-color: #e3f2fd; /* 非常淺的藍色背景 */
+            border: 1px solid #90caf9; /* 柔和的藍色邊框 */
+            margin-top: 15px; /* 調整與上方訊息的間距 */
+            font-size: 1.1em;
+            padding: 10px;
         }
-        /* 時間條相關的 CSS 已移除 */
+
         .hidden {
             display: none;
         }
         #modeSelection, #gameScreen, #gameOverScreen {
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.6s ease-out; /* 稍微放慢過渡動畫 */
         }
         @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
         .final-message {
-            font-size: 1.5em;
-            color: #28a745;
-            margin-bottom: 20px;
+            font-size: 1.6em; /* 放大結束訊息字體 */
+            color: #2e8b8c; /* 與主標題一致的顏色 */
+            margin-bottom: 25px;
+            font-weight: bold;
         }
     </style>
 </head>
